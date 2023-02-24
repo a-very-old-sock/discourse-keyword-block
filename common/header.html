@@ -186,7 +186,7 @@ function addIgnoredTopicClass() {
 }
 
 api.modifyClass("component:topic-list-item", {
-    pluginId: 'ffd-savior',
+    pluginId: 'user-keyword-blocker',
     @discourseComputed()
     unboundClassNames() {
         // console.log("unboundClassNames topic-list-item");
@@ -195,7 +195,7 @@ api.modifyClass("component:topic-list-item", {
 });
     
 api.modifyClass("component:latest-topic-list-item", {
-    pluginId: 'ffd-savior',
+    pluginId: 'user-keyword-blocker',
     @discourseComputed()
     unboundClassNames() {
         // console.log("unboundClassNames latest");
@@ -204,7 +204,7 @@ api.modifyClass("component:latest-topic-list-item", {
 });
 
 api.modifyClass("component:search-result-entry", {
-    pluginId: 'ffd-savior',
+    pluginId: 'user-keyword-blocker',
     @discourseComputed()
     test() {
         console.log(this);
