@@ -1,0 +1,19 @@
+.blocker-blocked {
+    visibility: collapse;
+    height: 20px;
+}
+
+.block-notice {
+    visibility: visible;
+    font-weight: bold;
+}
+
+.block-notice:hover {
+    color: var(--primary);
+}
+
+// Don't display the blocked keywords input on the signup form.  
+// May need to be modified if you have other custom fields
+.login-form .user-fields {
+    display: none;
+}

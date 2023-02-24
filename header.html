@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2202.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;script type="text/discourse-plugin" version="0.8"&gt;</p>
+<p class="p1">let currentUser = api.getCurrentUser();</p>
+<p class="p2"><br></p>
+<p class="p1">if (currentUser) {</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1">api.container.lookup('store:main').find('user', currentUser.username).then((user) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const blocklist = user.user_fields[settings.user_blocklist];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const case_sensitive = user.user_fields[settings.case_sensitive];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const whole_words = user.user_fields[settings.whole_words];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (blocklist) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const blocked = blocklist.split(",").map(function(item) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (case_sensitive) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return item.trim();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return item.trim().toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>api.decoratePluginOutlet(</p>
+<p class="p1"><span class="Apple-converted-space">               </span>"full-page-search-category",</p>
+<p class="p1"><span class="Apple-converted-space">               </span>(elem, args) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let searchCategory = elem.parentElement.parentElement</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let fpsTopic = searchCategory.parentElement.parentElement</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let children = Array.from(fpsTopic.children)</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let textc = children.map(x =&gt; x.innerText).join(" ")</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let textcontent = (case_sensitive) ? textc : textc.toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// fpsTopic.classList.add("tagged_" + tagList[index])</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>// console.log(textcontent)</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let result = "";</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let index = 0; index &lt; blocked.length; ++index) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// console.log(pattern)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (pattern.test(textcontent)) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const found = blocked.filter(text =&gt; textcontent.includes(text));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (found.length &gt;= 2) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const last = found.pop();</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ') + ' and ' + last;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const children = fpsTopic.childNodes;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const newNode = document.createElement("a");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const textNode = document.createTextNode("Blocked for containing " + result + ".");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.add("block-notice")</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.appendChild(textNode);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.onclick = function() { showComment(this); };</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>fpsTopic.insertBefore(newNode, fpsTopic.children[0]);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>fpsTopic.classList.add("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.remove("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">               </span>}</p>
+<p class="p1"><span class="Apple-converted-space">               </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1">});</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">if (currentUser) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>api.container.lookup('store:main').find('user', currentUser.username).then((user) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const blocklist = user.user_fields[settings.user_blocklist];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const case_sensitive = user.user_fields[settings.case_sensitive];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const whole_words = user.user_fields[settings.whole_words];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (blocklist) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const blocked = blocklist.split(",").map(function(item) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (case_sensitive) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return item.trim();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>return item.trim().toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>api.decorateCookedElement(</p>
+<p class="p1"><span class="Apple-converted-space">                </span>elem =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>const textContent = (case_sensitive) ? elem.textContent : elem.textContent.toLowerCase();</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let result = "";</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">                    </span>for (let index = 0; index &lt; blocked.length; ++index) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// console.log(pattern)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (pattern.test(textContent)) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const found = blocked.filter(text =&gt; textContent.includes(text));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (found.length &gt;= 2) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const last = found.pop();</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ') + ' and ' + last;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const children = elem.childNodes;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const newNode = document.createElement("a");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const textNode = document.createTextNode("Blocked for containing " + result + ".");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.add("block-notice")</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.appendChild(textNode);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.onclick = function() { showComment(this); };</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>elem.insertBefore(newNode, elem.children[0]);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>elem.classList.add("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.remove("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>},</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"id": "blocker-blocked",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>onlyStream: true</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function showComment(elem) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const cooked = elem.parentNode;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>elem.remove();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>cooked.classList.remove("blocker-blocked");</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">const discourseComputed = require("discourse-common/utils/decorators").default;</p>
+<p class="p2"><br></p>
+<p class="p1">function addIgnoredTopicClass() {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// console.log("addIgnoredTopicClass")</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (currentUser) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>api.container.lookup('store:main').find('user', currentUser.username).then((user) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const blocklist = user.user_fields[settings.user_blocklist];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const case_sensitive = user.user_fields[settings.case_sensitive];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const whole_words = user.user_fields[settings.whole_words];</p>
+<p class="p1"><span class="Apple-converted-space">            </span>// console.log(blocklist)</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (blocklist) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const blocked = blocklist.split(",").map(function(item) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (case_sensitive) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return item.trim();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>return item.trim().toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>});</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let classList = this._super(...arguments);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let elem = document.querySelectorAll("[data-topic-id='" + this.topic.id.toString() + "']")[0];</p>
+<p class="p1"><span class="Apple-converted-space">                </span>// console.log(elem);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const title = (case_sensitive) ? this.topic.fancy_title : this.topic.fancy_title.toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const excerpt = (case_sensitive) ? this.topic.excerpt : this.topic.excerpt.toLowerCase();</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let result = "";</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>for (let index = 0; index &lt; blocked.length; ++index) {</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>// console.log(pattern)</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>if (pattern.test(title)) {</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>classList += "blocker-blocked"</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const found = blocked.filter(text =&gt; title.includes(text));</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>if (found.length &gt;= 2) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>const last = found.pop();</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ') + ' and ' + last;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>result = found.join(', ');</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const newNode = document.createElement("a");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>const textNode = document.createTextNode("Blocked for containing " + result + ".");</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.add("block-notice")</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.appendChild(textNode);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.onclick = function() { showComment(this); };</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>elem.children[0].insertBefore(newNode, elem.children[0].children[0]);</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>for (let index = 0; index &lt; elem.children.length; ++index) {</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>if (elem.children[index].classList.contains('main-link')) {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>elem.children[index].classList.add("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else if (elem.children[index].classList.contains('topic-list-data')) {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>elem.children[index].classList.add("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else if (elem.children[index].classList.contains('fps-result')) {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>console.log(elem.children[index])</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>elem.children[index].classList.add("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                                    </span>// console.log(elem.children[index])</p>
+<p class="p1"><span class="Apple-converted-space">                                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>newNode.classList.remove("blocker-blocked");</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">                </span></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// console.log(classList);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>return classList;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">api.modifyClass("component:topic-list-item", {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pluginId: 'ffd-savior',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>@discourseComputed()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>unboundClassNames() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// console.log("unboundClassNames topic-list-item");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return addIgnoredTopicClass.call(this);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1">});</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1">api.modifyClass("component:latest-topic-list-item", {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pluginId: 'ffd-savior',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>@discourseComputed()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>unboundClassNames() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// console.log("unboundClassNames latest");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return addIgnoredTopicClass.call(this);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1">});</p>
+<p class="p2"><br></p>
+<p class="p1">api.modifyClass("component:search-result-entry", {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>pluginId: 'ffd-savior',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>@discourseComputed()</p>
+<p class="p1"><span class="Apple-converted-space">    </span>test() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>console.log(this);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>// return addIgnoredTopicClass.call(this);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1">});</p>
+<p class="p2"><br></p>
+<p class="p1">const latestTopicList = api.container.lookup("component:latest-topic-list-item");</p>
+<p class="p1">const topicList = api.container.lookup("component:topic-list-item");</p>
+<p class="p1">const searchResult = api.container.lookup("component:search-result-entry");</p>
+<p class="p1">// console.log(this);</p>
+<p class="p1">&lt;/script&gt;</p>
+</body>
+</html>
