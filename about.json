@@ -1,0 +1,17 @@
+{
+  "name": "User Keyword Blocker",
+  "component": true,
+  "license_url": "https://opensource.org/license/mit/",
+  "about_url": "https://github.com/a-very-old-sock/discourse-keyword-block/tree/main",
+  "authors": "asc",
+  "theme_version": "0.9",
+  "minimum_discourse_version": null,
+  "maximum_discourse_version": null,
+  "assets": {
+  },
+  "color_schemes": {
+  },
+  "modifiers": {
+  },
+  "learn_more": "https://meta.discourse.org/t/beginners-guide-to-using-discourse-themes/91966"
+}
