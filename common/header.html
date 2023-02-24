@@ -1,0 +1,219 @@
+<script type="text/discourse-plugin" version="0.8">
+let currentUser = api.getCurrentUser();
+
+if (currentUser) {
+    
+api.container.lookup('store:main').find('user', currentUser.username).then((user) => {
+    const blocklist = user.user_fields[settings.user_blocklist];
+        const case_sensitive = user.user_fields[settings.case_sensitive];
+        const whole_words = user.user_fields[settings.whole_words];
+
+        if (blocklist) {
+            const blocked = blocklist.split(",").map(function(item) {
+                if (case_sensitive) {
+                    return item.trim();
+                } else {
+                    return item.trim().toLowerCase();
+                }
+            });
+            
+            api.decoratePluginOutlet(
+               "full-page-search-category",
+               (elem, args) => {
+                let searchCategory = elem.parentElement.parentElement
+                let fpsTopic = searchCategory.parentElement.parentElement
+                let children = Array.from(fpsTopic.children)
+                let textc = children.map(x => x.innerText).join(" ")
+                
+                    let textcontent = (case_sensitive) ? textc : textc.toLowerCase();
+                    // fpsTopic.classList.add("tagged_" + tagList[index])
+                    // console.log(textcontent)
+                    let result = "";
+    
+                    for (let index = 0; index < blocked.length; ++index) {
+                        let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);
+                        // console.log(pattern)
+                        if (pattern.test(textcontent)) {
+                            const found = blocked.filter(text => textcontent.includes(text));
+                            if (found.length >= 2) {
+                                const last = found.pop();
+                                result = found.join(', ') + ' and ' + last;
+                            } else {
+                                result = found.join(', ');
+                            }
+                            const children = fpsTopic.childNodes;
+                            const newNode = document.createElement("a");
+                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
+                            newNode.classList.add("block-notice")
+                            newNode.appendChild(textNode);
+                            newNode.onclick = function() { showComment(this); };
+                            fpsTopic.insertBefore(newNode, fpsTopic.children[0]);
+                            fpsTopic.classList.add("blocker-blocked");
+                            newNode.classList.remove("blocker-blocked");
+                        }
+                    }
+                
+               }
+               );
+        }
+});
+}
+
+if (currentUser) {
+    api.container.lookup('store:main').find('user', currentUser.username).then((user) => {
+        const blocklist = user.user_fields[settings.user_blocklist];
+        const case_sensitive = user.user_fields[settings.case_sensitive];
+        const whole_words = user.user_fields[settings.whole_words];
+
+        if (blocklist) {
+            const blocked = blocklist.split(",").map(function(item) {
+                if (case_sensitive) {
+                    return item.trim();
+                } else {
+                    return item.trim().toLowerCase();
+                }
+            });
+            
+            api.decorateCookedElement(
+                elem => {
+                    const textContent = (case_sensitive) ? elem.textContent : elem.textContent.toLowerCase();
+    
+                    let result = "";
+    
+                    for (let index = 0; index < blocked.length; ++index) {
+                        let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);
+                        // console.log(pattern)
+                        if (pattern.test(textContent)) {
+                            const found = blocked.filter(text => textContent.includes(text));
+                            if (found.length >= 2) {
+                                const last = found.pop();
+                                result = found.join(', ') + ' and ' + last;
+                            } else {
+                                result = found.join(', ');
+                            }
+                            const children = elem.childNodes;
+                            const newNode = document.createElement("a");
+                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
+                            newNode.classList.add("block-notice")
+                            newNode.appendChild(textNode);
+                            newNode.onclick = function() { showComment(this); };
+                            elem.insertBefore(newNode, elem.children[0]);
+                            elem.classList.add("blocker-blocked");
+                            newNode.classList.remove("blocker-blocked");
+                        }
+                    }
+                },
+                {
+                    "id": "blocker-blocked",
+                    onlyStream: true
+                }
+            );
+        }
+    });
+}
+
+function showComment(elem) {
+    const cooked = elem.parentNode;
+    elem.remove();
+    cooked.classList.remove("blocker-blocked");
+}
+
+const discourseComputed = require("discourse-common/utils/decorators").default;
+
+function addIgnoredTopicClass() {
+    // console.log("addIgnoredTopicClass")
+    if (currentUser) {
+        api.container.lookup('store:main').find('user', currentUser.username).then((user) => {
+            const blocklist = user.user_fields[settings.user_blocklist];
+            const case_sensitive = user.user_fields[settings.case_sensitive];
+            const whole_words = user.user_fields[settings.whole_words];
+            // console.log(blocklist)
+    
+            if (blocklist) {
+                const blocked = blocklist.split(",").map(function(item) {
+                    if (case_sensitive) {
+                        return item.trim();
+                    } else {
+                        return item.trim().toLowerCase();
+                    }
+                });
+                let classList = this._super(...arguments);
+                let elem = document.querySelectorAll("[data-topic-id='" + this.topic.id.toString() + "']")[0];
+                // console.log(elem);
+                const title = (case_sensitive) ? this.topic.fancy_title : this.topic.fancy_title.toLowerCase();
+                const excerpt = (case_sensitive) ? this.topic.excerpt : this.topic.excerpt.toLowerCase();
+                let result = "";
+                
+                for (let index = 0; index < blocked.length; ++index) {
+                        let pattern = (whole_words) ? new RegExp('(?:\\b|\\s|^)' + blocked[index] + '(?:\\b|\\s|$)') : new RegExp(blocked[index]);
+                        // console.log(pattern)
+                        if (pattern.test(title)) {
+                            classList += "blocker-blocked"
+                            const found = blocked.filter(text => title.includes(text));
+                            if (found.length >= 2) {
+                                const last = found.pop();
+                                result = found.join(', ') + ' and ' + last;
+                            } else {
+                                result = found.join(', ');
+                            }
+                            const newNode = document.createElement("a");
+                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
+                            newNode.classList.add("block-notice")
+                            newNode.appendChild(textNode);
+                            newNode.onclick = function() { showComment(this); };
+                            elem.children[0].insertBefore(newNode, elem.children[0].children[0]);
+                            for (let index = 0; index < elem.children.length; ++index) {
+                                if (elem.children[index].classList.contains('main-link')) {
+                                    elem.children[index].classList.add("blocker-blocked");
+                                } else if (elem.children[index].classList.contains('topic-list-data')) {
+                                    elem.children[index].classList.add("blocker-blocked");
+                                } else if (elem.children[index].classList.contains('fps-result')) {
+                                    console.log(elem.children[index])
+                                    elem.children[index].classList.add("blocker-blocked");
+                                } else {
+                                    // console.log(elem.children[index])
+                                }
+                            }
+                            newNode.classList.remove("blocker-blocked");
+                        }
+                    }
+                
+                // console.log(classList);
+                return classList;
+            }
+        });
+    }
+}
+
+api.modifyClass("component:topic-list-item", {
+    pluginId: 'ffd-savior',
+    @discourseComputed()
+    unboundClassNames() {
+        // console.log("unboundClassNames topic-list-item");
+        return addIgnoredTopicClass.call(this);
+    }
+});
+    
+api.modifyClass("component:latest-topic-list-item", {
+    pluginId: 'ffd-savior',
+    @discourseComputed()
+    unboundClassNames() {
+        // console.log("unboundClassNames latest");
+        return addIgnoredTopicClass.call(this);
+    }
+});
+
+api.modifyClass("component:search-result-entry", {
+    pluginId: 'ffd-savior',
+    @discourseComputed()
+    test() {
+        console.log(this);
+        // return addIgnoredTopicClass.call(this);
+    }
+});
+
+const latestTopicList = api.container.lookup("component:latest-topic-list-item");
+const topicList = api.container.lookup("component:topic-list-item");
+const searchResult = api.container.lookup("component:search-result-entry");
+// console.log(this);
+</script>
