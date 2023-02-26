@@ -149,7 +149,9 @@ function addIgnoredTopicClass() {
                 let elem = document.querySelectorAll("[data-topic-id='" + this.topic.id.toString() + "']")[0];
                 // console.log(elem);
                 const title = (case_sensitive) ? this.topic.fancy_title : this.topic.fancy_title.toLowerCase();
-                const excerpt = (case_sensitive) ? this.topic.excerpt : this.topic.excerpt.toLowerCase();
+                if (this.topic.excerpt) {
+                    const excerpt = (case_sensitive) ? this.topic.excerpt : this.topic.excerpt.toLowerCase();
+                }
                 let result = "";
                 
                 for (let index = 0; index < blocked.length; ++index) {
