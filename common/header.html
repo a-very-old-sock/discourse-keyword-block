@@ -48,7 +48,7 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
                             }
                             const children = fpsTopic.childNodes;
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            const textNode = document.createTextNode(settings.blocked_notice + result);
                             newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
@@ -101,7 +101,7 @@ if (currentUser) {
                             }
                             const children = elem.childNodes;
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            const textNode = document.createTextNode(settings.blocked_notice + result);
                             newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
@@ -165,7 +165,7 @@ function addIgnoredTopicClass() {
                                 result = found.join(', ');
                             }
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            const textNode = document.createTextNode(settings.blocked_notice + result);
                             newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
