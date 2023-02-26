@@ -2,11 +2,15 @@
 let currentUser = api.getCurrentUser();
 
 if (currentUser) {
+// console.log(currentUser)
     
 api.container.lookup('store:main').find('user', currentUser.username).then((user) => {
+    const ignored_users = user.ignored_usernames
+    const muted_users = user.muted_usernames
+    // console.log(ignored_users, muted_users)
     const blocklist = user.user_fields[settings.user_blocklist];
         const case_sensitive = user.user_fields[settings.case_sensitive];
-        const whole_words = user.user_fields[settings.whole_words];
+        const whole_words = user.user_fields[settings.whole_words;
 
         if (blocklist) {
             const blocked = blocklist.split(",").map(function(item) {
@@ -20,6 +24,7 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
             api.decoratePluginOutlet(
                "full-page-search-category",
                (elem, args) => {
+                console.log(elem)
                 let searchCategory = elem.parentElement.parentElement
                 let fpsTopic = searchCategory.parentElement.parentElement
                 let children = Array.from(fpsTopic.children)
@@ -27,7 +32,7 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
                 
                     let textcontent = (case_sensitive) ? textc : textc.toLowerCase();
                     // fpsTopic.classList.add("tagged_" + tagList[index])
-                    // console.log(textcontent)
+                    console.log(textcontent)
                     let result = "";
     
                     for (let index = 0; index < blocked.length; ++index) {
@@ -43,8 +48,8 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
                             }
                             const children = fpsTopic.childNodes;
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
-                            newNode.classList.add("block-notice")
+                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
                             fpsTopic.insertBefore(newNode, fpsTopic.children[0]);
@@ -61,6 +66,8 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
 
 if (currentUser) {
     api.container.lookup('store:main').find('user', currentUser.username).then((user) => {
+        const ignored_users = user.ignored_usernames
+        const muted_users = user.muted_usernames
         const blocklist = user.user_fields[settings.user_blocklist];
         const case_sensitive = user.user_fields[settings.case_sensitive];
         const whole_words = user.user_fields[settings.whole_words];
@@ -76,6 +83,7 @@ if (currentUser) {
             
             api.decorateCookedElement(
                 elem => {
+                    console.log(elem.parentNode)
                     const textContent = (case_sensitive) ? elem.textContent : elem.textContent.toLowerCase();
     
                     let result = "";
@@ -93,8 +101,8 @@ if (currentUser) {
                             }
                             const children = elem.childNodes;
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
-                            newNode.classList.add("block-notice")
+                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
                             elem.insertBefore(newNode, elem.children[0]);
@@ -157,8 +165,8 @@ function addIgnoredTopicClass() {
                                 result = found.join(', ');
                             }
                             const newNode = document.createElement("a");
-                            const textNode = document.createTextNode("Blocked for containing " + result + ".");
-                            newNode.classList.add("block-notice")
+                            const textNode = document.createTextNode(settings.blocked-notice + result);
+                            newNode.classList.add("block-notice", "gap")
                             newNode.appendChild(textNode);
                             newNode.onclick = function() { showComment(this); };
                             elem.children[0].insertBefore(newNode, elem.children[0].children[0]);
@@ -186,7 +194,7 @@ function addIgnoredTopicClass() {
 }
 
 api.modifyClass("component:topic-list-item", {
-    pluginId: 'user-keyword-blocker',
+    pluginId: 'ffd-savior',
     @discourseComputed()
     unboundClassNames() {
         // console.log("unboundClassNames topic-list-item");
@@ -195,7 +203,7 @@ api.modifyClass("component:topic-list-item", {
 });
     
 api.modifyClass("component:latest-topic-list-item", {
-    pluginId: 'user-keyword-blocker',
+    pluginId: 'ffd-savior',
     @discourseComputed()
     unboundClassNames() {
         // console.log("unboundClassNames latest");
@@ -204,11 +212,11 @@ api.modifyClass("component:latest-topic-list-item", {
 });
 
 api.modifyClass("component:search-result-entry", {
-    pluginId: 'user-keyword-blocker',
+    pluginId: 'ffd-savior',
     @discourseComputed()
     test() {
-        // console.log(this);
-        return addIgnoredTopicClass.call(this);
+        console.log(this);
+        // return addIgnoredTopicClass.call(this);
     }
 });
 
