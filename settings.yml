@@ -6,3 +6,6 @@ case_sensitive:
 
 whole_words:
   default: 3
+
+blocked-notice:
+  default: "Hidden for containing "
