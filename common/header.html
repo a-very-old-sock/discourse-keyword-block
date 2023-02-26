@@ -24,7 +24,7 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
             api.decoratePluginOutlet(
                "full-page-search-category",
                (elem, args) => {
-                console.log(elem)
+                // console.log(elem)
                 let searchCategory = elem.parentElement.parentElement
                 let fpsTopic = searchCategory.parentElement.parentElement
                 let children = Array.from(fpsTopic.children)
