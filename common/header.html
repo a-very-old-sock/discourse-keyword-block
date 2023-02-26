@@ -10,7 +10,7 @@ api.container.lookup('store:main').find('user', currentUser.username).then((user
     // console.log(ignored_users, muted_users)
     const blocklist = user.user_fields[settings.user_blocklist];
         const case_sensitive = user.user_fields[settings.case_sensitive];
-        const whole_words = user.user_fields[settings.whole_words;
+        const whole_words = user.user_fields[settings.whole_words];
 
         if (blocklist) {
             const blocked = blocklist.split(",").map(function(item) {
